@@ -18,8 +18,8 @@ import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import mpzcmpwallet.composeapp.generated.resources.Res
-import mpzcmpwallet.composeapp.generated.resources.profile
+import utopiasample.composeapp.generated.resources.Res
+import utopiasample.composeapp.generated.resources.profile
 
 @Preview
 @Composable
