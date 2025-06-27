@@ -1,7 +1,7 @@
 package org.multipaz.samples.wallet.cmp
 
 import androidx.compose.runtime.Composable
-import mpzcmpwallet.composeapp.generated.resources.Res
+import utopiasample.composeapp.generated.resources.Res
 import org.multipaz.compose.digitalcredentials.CredentialManagerPresentmentActivity
 
 class CredmanActivity: CredentialManagerPresentmentActivity() {

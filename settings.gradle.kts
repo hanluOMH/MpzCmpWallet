@@ -1,4 +1,4 @@
-rootProject.name = "MpzCmpWallet"
+rootProject.name = "UtopiaSample"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
