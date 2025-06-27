@@ -73,6 +73,10 @@ import org.multipaz.util.UUID
 import org.multipaz.util.fromHex
 import org.multipaz.util.toBase64Url
 import kotlin.time.Duration.Companion.days
+import mpzcmpwallet.composeapp.generated.resources.profile
+import org.jetbrains.compose.resources.getDrawableResourceBytes
+import org.jetbrains.compose.resources.getSystemResourceEnvironment
+import org.multipaz.util.Logger
 
 /**
  * Application singleton.
@@ -93,7 +97,7 @@ class App() {
     private var initialized = false
 
     val appName = "MpzCmpWallet"
-    val appIcon = Res.drawable.compose_multiplatform
+    val appIcon = Res.drawable.profile
 
     suspend fun init() {
         initLock.withLock {
@@ -108,6 +112,7 @@ class App() {
             }
             documentStore = buildDocumentStore(storage = storage, secureAreaRepository = secureAreaRepository) {}
             if (documentStore.listDocuments().isEmpty()) {
+                Logger.i(appName,"create document")
                 val now = Clock.System.now()
                 val signedAt = now
                 val validFrom = now
@@ -132,9 +137,17 @@ class App() {
                     validFrom = validFrom,
                     validUntil = validUntil
                 )
+                val profile = ByteString(
+                    getDrawableResourceBytes(
+                        getSystemResourceEnvironment(),
+                        Res.drawable.profile,
+                    )
+                )
                 val document = documentStore.createDocument(
-                    displayName = "Erika's Driving License",
-                    typeDisplayName = "Utopia Driving License",
+                    displayName ="Tom Lee's Utopia Membership",
+                    typeDisplayName = "Membership Card",
+                    cardArt = profile,
+                    other = UtopiaMemberInfo().toJsonString().encodeToByteString(),
                 )
                 val mdocCredential =
                     DrivingLicense.getDocumentType().createMdocCredentialWithSampleData(
@@ -151,6 +164,8 @@ class App() {
                         validFrom = validFrom,
                         validUntil = validUntil,
                     )
+            }else{
+                Logger.i(appName,"document already exists")
             }
             presentmentModel = PresentmentModel().apply { setPromptModel(promptModel) }
             readerTrustManager = TrustManager().apply {
@@ -197,6 +212,7 @@ class App() {
                 domainMdocSignature = "mdoc",
             )
             if (DigitalCredentials.Default.available) {
+                //The credentials will still exist in your document store and can be used for other presentation mechanisms like proximity sharing (NFC/BLE), but they won't be accessible through the standardized digital credentials infrastructure that Android provides.
                 DigitalCredentials.Default.startExportingCredentials(
                     documentStore = documentStore,
                     documentTypeRepository = documentTypeRepository
@@ -225,10 +241,16 @@ class App() {
         }
 
         MaterialTheme {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                PromptDialogs(promptModel)
+                Spacer(modifier = Modifier.height(30.dp))
+                MembershipCard()
+            }
             val coroutineScope = rememberCoroutineScope { promptModel }
             val blePermissionState = rememberBluetoothPermissionState()
-
-            PromptDialogs(promptModel)
 
             if (!blePermissionState.isGranted) {
                 Column(
